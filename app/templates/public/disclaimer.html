@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page.title if page else 'Disclaimer' }} — {{ SITE_NAME }}{% endblock %}
+{% block description %}Editorial policy, informational disclaimer, and affiliate disclosures for {{ SITE_NAME }} by {{ SITE_AUTHOR }}.{% endblock %}
+
+{% block content %}
+<article style="padding: 64px 0 100px;">
+  <header style="text-align: center; max-width: 720px; margin: 0 auto 48px; padding: 0 24px;">
+    <p class="section-label" style="letter-spacing: 0.3em; font-size: 11px; margin-bottom: 12px;">D I S C L O S U R E</p>
+    <h1 style="font-size: clamp(32px, 4vw, 48px); font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 12px;">
+      {{ page.title if page else 'Disclaimer' }}
+    </h1>
+    <p style="font-size: 14px; color: var(--text-muted);">
+      Last updated: {{ page.updated_at.strftime('%B %d, %Y') if page and page.updated_at else (now.strftime('%B %d, %Y') if now else 'August 31, 2026') }}
+    </p>
+  </header>
+
+  <div class="reader-container" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: clamp(24px, 5vw, 48px);">
+    <div class="post-body" style="font-size: 16px; line-height: 1.8;">
+      {% if page %}
+        {{ page.content_html | markdown_or_html | safe }}
+      {% else %}
+        <h2 style="font-size: 22px; font-weight: 700; margin-top: 0;">1. General Informational Purpose</h2>
+        <p>
+          All content published on <strong>{{ SITE_NAME }}</strong> by <strong>{{ SITE_AUTHOR }}</strong>—including articles, essays, mental models, frameworks, guides, emails, and recommended tools—is created solely for general educational, philosophical, and personal development purposes.
+        </p>
+        <p>
+          The views and opinions expressed are those of the author and represent personal perspectives, syntheses of research, and experiential learnings.
+        </p>
+
+        <h2 style="font-size: 22px; font-weight: 700; margin-top: 36px;">2. Not Professional Advice</h2>
+        <p>
+          Nothing contained on this website or in our newsletters constitutes financial, investment, legal, medical, psychological, or other professional advice. You should always consult with qualified professionals before making significant financial, health, or business decisions.
+        </p>
+
+        <h2 style="font-size: 22px; font-weight: 700; margin-top: 36px;">3. Affiliate &amp; Recommendations Disclosure</h2>
+        <p>
+          We believe in complete transparency. Certain links on this website (such as tools or books in our Resources or Reading List) may occasionally be affiliate links.
+        </p>
+        <p>
+          This means that at no additional cost to you, we may earn a small referral commission if you choose to make a purchase through those links. We only recommend products, books, software, and tools that we personally use, trust, and believe offer genuine value to our readers.
+        </p>
+
+        <h2 style="font-size: 22px; font-weight: 700; margin-top: 36px;">4. External Links Disclaimer</h2>
+        <p>
+          This website may contain links to external third-party websites not owned or operated by {{ SITE_NAME }}. We do not control or assume responsibility for the content, privacy practices, or accuracy of any external sites.
+        </p>
+      {% endif %}
+    </div>
+  </div>
+</article>
+{% endblock %}

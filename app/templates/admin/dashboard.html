@@ -1,0 +1,103 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-card-label">Total Published</div>
+    <div class="stat-card-value accent">{{ stats.published }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-label">Active Subscribers</div>
+    <div class="stat-card-value accent">{{ stats.subscribers }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-label">Total Essay Views</div>
+    <div class="stat-card-value">{{ stats.total_views }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-label">Draft Essays</div>
+    <div class="stat-card-value">{{ stats.drafts }}</div>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  {# Recent Posts #}
+  <div class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title">Recent Essays</h2>
+      <a href="{{ url_for('admin.posts') }}" class="btn btn-ghost btn-sm">View All →</a>
+    </div>
+    <div class="panel-body" style="padding: 0;">
+      {% if recent_posts %}
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Views</th>
+              <th>Updated</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for post in recent_posts %}
+            <tr>
+              <td>
+                <a href="{{ url_for('admin.edit_post', post_id=post.id) }}" style="font-weight: 600; color: var(--text);">{{ post.title }}</a>
+              </td>
+              <td>
+                <span class="badge badge-{{ post.status }}">{{ post.status }}</span>
+              </td>
+              <td style="color: var(--text-muted);">{{ post.views or 0 }}</td>
+              <td style="color: var(--text-muted); font-size: 12px;">{{ post.updated_at.strftime('%b %d, %H:%M') if post.updated_at else '—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div style="padding: 32px; text-align: center; color: var(--text-muted);">
+        No posts created yet. <a href="{{ url_for('admin.new_post') }}" style="color: var(--accent);">Write your first essay</a>.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {# Recent Subscribers #}
+  <div class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title">New Subscribers</h2>
+      <a href="{{ url_for('admin.subscribers') }}" class="btn btn-ghost btn-sm">View All →</a>
+    </div>
+    <div class="panel-body" style="padding: 0;">
+      {% if recent_subs %}
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sub in recent_subs %}
+            <tr>
+              <td style="font-weight: 500;">{{ sub.email }}</td>
+              <td style="color: var(--text-muted); font-size: 12px;">{{ sub.subscribed_at.strftime('%b %d') }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div style="padding: 32px; text-align: center; color: var(--text-muted);">
+        No subscribers yet.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

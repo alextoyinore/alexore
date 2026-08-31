@@ -1,0 +1,46 @@
+{% extends 'admin/base.html' %}
+{% block title %}Resources{% endblock %}
+{% block page_title %}Resources{% endblock %}
+
+{% block content %}
+<div style="max-width: 960px;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px;">
+    <div>
+      <h3 style="margin: 0; font-size: 18px; color: var(--text);">All Resources</h3>
+      <p style="margin: 4px 0 0; font-size: 13px; color: var(--text-muted);">{{ resources|length }} resource{{ 's' if resources|length != 1 }} — displayed on the <a href="{{ url_for('public.resources') }}" target="_blank" style="color:var(--accent);">resources page</a>.</p>
+    </div>
+    <a href="{{ url_for('admin.new_resource') }}" class="btn btn-primary" style="text-decoration:none !important;">
+      + New Resource
+    </a>
+  </div>
+
+  {% if resources %}
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    {% for r in resources %}
+    <div class="panel" style="padding: 18px 24px; display: flex; align-items: center; gap: 20px;">
+      <div style="font-size: 28px; line-height: 1; flex-shrink: 0;">{{ r.icon }}</div>
+      <div style="flex: 1; min-width: 0;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 3px;">
+          <strong style="font-size: 15px; color: var(--text);">{{ r.name }}</strong>
+          <span style="font-size: 11px; color: var(--text-muted); background: var(--surface-2); border: 1px solid var(--border); border-radius: 100px; padding: 2px 8px;">/resources/{{ r.slug }}</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ r.tagline }}</p>
+      </div>
+      <div style="display: flex; gap: 8px; flex-shrink: 0; align-items: center;">
+        <a href="{{ url_for('public.resource_detail', slug=r.slug) }}" target="_blank" class="btn btn-ghost btn-sm" style="text-decoration:none !important;">View</a>
+        <a href="{{ url_for('admin.edit_resource', slug=r.slug) }}" class="btn btn-ghost btn-sm" style="text-decoration:none !important;">Edit</a>
+        <a href="{{ url_for('admin.delete_resource', slug=r.slug) }}" class="btn btn-danger btn-sm" onclick="confirmDelete(event, '{{ r.name }}');" style="text-decoration:none !important;">Delete</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="panel" style="padding: 64px; text-align: center;">
+    <p style="font-size: 15px; color: var(--text-muted); margin-bottom: 20px;">No resources yet. Create your first one.</p>
+    <a href="{{ url_for('admin.new_resource') }}" class="btn btn-primary" style="text-decoration:none !important;">+ New Resource</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

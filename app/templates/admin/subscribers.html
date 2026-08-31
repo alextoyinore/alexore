@@ -1,0 +1,59 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Subscribers{% endblock %}
+{% block page_title %}Subscribers{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{{ url_for('admin.export_subscribers') }}" class="btn btn-ghost btn-sm">↓ Export CSV</a>
+  <a href="{{ url_for('admin.send_email') }}" class="btn btn-primary btn-sm">Compose Campaign</a>
+{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="panel-header">
+    <h2 class="panel-title">All Subscribers ({{ subscribers | length }})</h2>
+  </div>
+  <div class="panel-body" style="padding: 0;">
+    {% if subscribers %}
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Source</th>
+            <th>Subscribed Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sub in subscribers %}
+          <tr>
+            <td style="font-weight: 600; color: var(--text);">{{ sub.email }}</td>
+            <td>{{ sub.name or '—' }}</td>
+            <td>
+              <span class="badge badge-{{ sub.status }}">{{ sub.status }}</span>
+            </td>
+            <td>
+              <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-muted);">{{ sub.source or 'homepage' }}</span>
+            </td>
+            <td style="color: var(--text-muted); font-size: 12px;">
+              {{ sub.subscribed_at.strftime('%Y-%m-%d %H:%M') }}
+            </td>
+            <td>
+              <a href="{{ url_for('admin.delete_subscriber', sub_id=sub.id) }}" class="btn btn-danger btn-sm" onclick="confirmDelete(event, '{{ sub.email }}');">Delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="padding: 48px; text-align: center; color: var(--text-muted);">
+      No subscribers yet. They will appear here when users sign up on your site.
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

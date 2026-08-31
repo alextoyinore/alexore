@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ SITE_NAME }} — {{ SITE_TAGLINE }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homepage_extra.css') }}">
+{% endblock %}
+
+{% block content %}
+
+{# ── 1. Hero Section (Dan Koe Homepage Style) ──────────────────────────── #}
+<section class="hero" style="padding-top: 140px; padding-bottom: 80px;">
+  <p class="hero-eyebrow reveal" style="letter-spacing: 0.35em; font-size: 13px; font-weight: 700; margin-bottom: 20px;">
+    {{ SITE_AUTHOR | upper | replace(' ', '  ') }}
+  </p>
+
+  <h1 class="hero-headline reveal" style="font-size: clamp(38px, 5.5vw, 64px); max-width: 880px; line-height: 1.08; margin-bottom: 20px; font-weight: 900;">
+    {{ SITE_TAGLINE | safe }}
+  </h1>
+
+  <p class="hero-sub reveal" style="max-width: 580px; margin-bottom: 32px; font-size: 17px; line-height: 1.6;">
+    Join {{ subscriber_count or '1,000' }}+ getting high-signal ideas twice a week reading about the mind, the internet, and the future.
+  </p>
+
+  <div class="hero-actions reveal" style="width: 100%; max-width: 440px; margin: 0 auto;">
+    <form class="subscribe-form js-subscribe-form" data-source="hero" style="width: 100%;">
+      <input type="email" placeholder="Type your email..." required>
+      <button type="submit" class="btn btn-primary">Subscribe Free</button>
+    </form>
+  </div>
+  <p class="subscribe-msg" style="margin-top:12px;font-size:13px;color:var(--accent);min-height:20px;"></p>
+
+  <div style="margin-top: 24px; font-size: 13px; font-weight: 600; color: var(--text-muted);" class="reveal">
+    <a href="{{ url_for('public.writing') }}" style="color: var(--text); text-decoration: none !important; border-bottom: none !important;">
+      🔗 Receive 2 free letters a week
+    </a>
+  </div>
+</section>
+
+{# ── 2. Resources Section (Join The New 1%) ──────────────────────────────── #}
+<section class="section container reveal" style="padding-top: 40px; padding-bottom: 80px;">
+  <div style="text-align: center; max-width: 600px; margin: 0 auto 40px;">
+    <p class="section-label" style="letter-spacing: 0.3em; font-size: 11px; margin-bottom: 12px;">R E S O U R C E S</p>
+    <h2 class="section-title" style="font-size: clamp(28px, 4vw, 42px); font-weight: 800;">Join The New 1%</h2>
+    <p class="section-sub" style="margin: 8px auto 0; font-size: 16px;">Become future-proof with these tools</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;" class="reveal-children dan-resource-grid-3">
+    {# Resource 1: Soft Skills Academy #}
+    <div class="dan-resource-card">
+      <div class="dan-resource-media">
+        <div class="dan-resource-badge">SOFT SKILLS ACADEMY</div>
+      </div>
+      <div class="dan-resource-body">
+        <h3 class="dan-resource-title">Soft Skills Academy</h3>
+        <p class="dan-resource-desc">Master communication, emotional intelligence, focus, and leadership systems built for modern creators & professionals.</p>
+        <a href="{{ url_for('public.writing') }}" class="dan-resource-link">
+          🔗 Join Soft Skills Academy
+        </a>
+      </div>
+    </div>
+
+    {# Resource 2: One School #}
+    <div class="dan-resource-card">
+      <div class="dan-resource-media" style="flex-direction: column; justify-content: center; gap: 8px; padding: 24px; text-align: center;">
+        <div style="font-weight: 900; font-size: 26px; color: #0f172a; letter-spacing: -0.01em;">✦ One School</div>
+        <p style="font-size: 13px; color: #334155; max-width: 280px; margin: 0; font-weight: 600;">The holistic digital education platform for polymaths & modern builders.</p>
+      </div>
+      <div class="dan-resource-body">
+        <h3 class="dan-resource-title">One School</h3>
+        <p class="dan-resource-desc">Synthesize your passions, build digital leverage, and design an independent life with our flagship curriculum.</p>
+        <a href="{{ url_for('public.writing') }}" class="dan-resource-link">
+          🔗 Explore One School
+        </a>
+      </div>
+    </div>
+
+    {# Resource 3: The Toolkit #}
+    <div class="dan-resource-card">
+      <div class="dan-resource-media" style="flex-direction: column; justify-content: center; gap: 8px; padding: 24px; text-align: center;">
+        <div style="font-weight: 900; font-size: 26px; color: #0f172a; letter-spacing: -0.01em;">⚙ The Toolkit</div>
+        <p style="font-size: 13px; color: #334155; max-width: 280px; margin: 0; font-weight: 600;">Handpicked tools, frameworks & resources for the independent creator.</p>
+      </div>
+      <div class="dan-resource-body">
+        <h3 class="dan-resource-title">The Toolkit</h3>
+        <p class="dan-resource-desc">Curated tools, mental models, and frameworks used by the world's most effective thinkers, writers & builders.</p>
+        <a href="{{ url_for('public.writing') }}" class="dan-resource-link">
+          🔗 Explore The Toolkit
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 40px;" class="reveal">
+    <a href="{{ url_for('public.resources') }}" class="btn btn-ghost" style="text-decoration: none !important; border-bottom: none !important;">
+      View All Resources →
+    </a>
+  </div>
+</section>
+
+{# ── 3. THE BLOG (Explore Your Curiosity - Dan Koe Article Cards) ─────────── #}
+{% if latest_posts %}
+<section class="section container reveal" style="padding-top: 40px; padding-bottom: 90px;">
+  <div style="text-align: center; max-width: 680px; margin: 0 auto 48px;">
+    <p class="section-label" style="letter-spacing: 0.35em; font-size: 11px; margin-bottom: 12px;">T H E   B L O G</p>
+    <h2 class="section-title" style="font-size: clamp(30px, 4vw, 44px); font-weight: 900;">Explore Your Curiosity</h2>
+    <p class="section-sub" style="margin: 8px auto 0; font-size: 16px;">Deep dives on human potential, lifestyle design, & digital business.</p>
+  </div>
+
+  <div class="dan-blog-grid reveal-children">
+    {% for post in latest_posts %}
+    <a href="{{ url_for('public.post', slug=post.slug) }}" class="dan-blog-card">
+      <div class="dan-blog-thumb">
+        {% if post.cover_image %}
+          <img src="{{ post.cover_image }}" alt="{{ post.cover_image_alt or post.title }}" loading="lazy">
+        {% else %}
+          <div class="post-card-image-placeholder" style="font-size:32px;">{{ post.title[0] }}</div>
+        {% endif %}
+      </div>
+      <div class="dan-blog-body">
+        <h3 class="dan-blog-title">{{ post.title }}</h3>
+        {% if post.subtitle %}
+          <p class="dan-blog-sub">{{ post.subtitle }}</p>
+        {% endif %}
+        <div class="dan-blog-link">
+          🔗 Read Article
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  <div style="text-align: center; margin-top: 48px;">
+    <a href="{{ url_for('public.writing') }}" class="btn btn-ghost" style="text-decoration: none !important; border-bottom: none !important;">View All Essays →</a>
+  </div>
+</section>
+{% endif %}
+
+{# ── 4. Manifesto Quote Block ──────────────────────────────────────────────── #}
+<section class="section container reveal">
+  <div class="manifesto-box">
+    <p class="manifesto-text">
+      "The internet is an attention economy. If you don't build your own thinking and leverage, you will spend your life renting someone else's."
+    </p>
+    <p class="manifesto-author">— {{ SITE_AUTHOR }}</p>
+  </div>
+</section>
+
+{# ── 5. About Me Summary Block ─────────────────────────────────────────────── #}
+{% if about %}
+<section class="section container reveal" style="padding-top: 20px; padding-bottom: 40px;">
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: clamp(28px, 5vw, 48px); display: flex; align-items: center; gap: clamp(24px, 4vw, 48px); flex-wrap: wrap;">
+    {% if about.avatar_image %}
+      <div style="flex-shrink: 0; margin: 0 auto;">
+        <img 
+          src="{{ about.avatar_image }}" 
+          alt="{{ about.name }}" 
+          style="width: clamp(180px, 22vw, 240px); height: clamp(180px, 22vw, 240px); border-radius: 50%; object-fit: cover; border: 2px solid var(--border); box-shadow: none;"
+        >
+      </div>
+    {% endif %}
+    <div style="flex: 1; min-width: 280px;">
+      <p class="section-label" style="letter-spacing: 0.25em; font-size: 11px; margin-bottom: 8px;">A B O U T</p>
+      <h2 style="font-size: clamp(24px, 3vw, 32px); font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 8px;">
+        {{ about.name }}
+      </h2>
+      {% if about.tagline %}
+        <p style="font-size: 15px; font-weight: 600; color: var(--accent); margin-bottom: 16px;">
+          {{ about.tagline }}
+        </p>
+      {% endif %}
+      <div style="font-size: 15px; line-height: 1.7; color: var(--text-muted); margin-bottom: 24px; white-space: pre-line;">
+        {{ about.summary }}
+      </div>
+      <div>
+        <a href="{{ url_for('public.about') }}" class="btn btn-ghost" style="text-decoration: none !important; border-bottom: none !important;">
+          Read My Full Story →
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# ── 6. Bottom Newsletter Strip ────────────────────────────────────────────── #}
+<section class="section container">
+  <div class="newsletter-strip reveal">
+    <p class="section-label" style="letter-spacing: 0.25em;">T H E   N E W S L E T T E R</p>
+    <h2 class="section-title">Essays in your inbox.</h2>
+    <p class="section-sub" style="margin:12px auto 32px;">
+      No spam. No filler. Just high-signal ideas worth thinking about.
+    </p>
+    <form class="subscribe-form js-subscribe-form" style="margin:0 auto;" data-source="footer">
+      <input type="email" placeholder="Type your email..." required>
+      <button type="submit" class="btn btn-primary">Join Free</button>
+    </form>
+    <p class="subscribe-msg" style="text-align:center;margin-top:10px;"></p>
+  </div>
+</section>
+
+{% endblock %}

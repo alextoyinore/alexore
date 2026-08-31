@@ -1,0 +1,128 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}About Me Profile{% endblock %}
+{% block page_title %}About Me{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{{ url_for('public.about') }}" target="_blank" class="btn btn-ghost btn-sm" style="text-decoration:none !important;">View Live ↗</a>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 860px;">
+
+  <form method="POST" enctype="multipart/form-data" class="panel" style="padding: 32px;">
+    
+    <div style="display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid var(--border);">
+      {# Avatar Upload & Preview #}
+      <div style="text-align: center; flex-shrink: 0;">
+        <div style="margin-bottom: 12px; position: relative; width: 120px; height: 120px; margin-left: auto; margin-right: auto;">
+          <img 
+            id="avatar-preview" 
+            src="{{ about.avatar_image or url_for('static', filename='img/avatar_placeholder.png') }}" 
+            alt="Avatar"
+            style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--border); background: var(--surface-2);"
+            onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'120\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'1\'><circle cx=\'12\' cy=\'8\' r=\'4\'/><path d=\'M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2\'/></svg>';"
+          >
+        </div>
+        <label for="avatar_file" class="btn btn-ghost btn-sm" style="cursor: pointer; display: inline-block;">
+          Upload Photo
+        </label>
+        <input 
+          type="file" 
+          id="avatar_file" 
+          name="avatar_file" 
+          accept="image/*" 
+          style="display: none;"
+          onchange="previewAvatar(event)"
+        >
+        <input type="hidden" name="avatar_image" id="avatar_image" value="{{ about.avatar_image or '' }}">
+      </div>
+
+      {# Basic info #}
+      <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 16px;">
+        <div class="form-group" style="margin: 0;">
+          <label class="form-label" for="name" style="font-weight: 700;">Author Name</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            class="form-control" 
+            value="{{ about.name or '' }}" 
+            required 
+            placeholder="e.g. Alex Ore"
+          >
+        </div>
+
+        <div class="form-group" style="margin: 0;">
+          <label class="form-label" for="tagline" style="font-weight: 700;">Tagline / Subtitle</label>
+          <input 
+            type="text" 
+            id="tagline" 
+            name="tagline" 
+            class="form-control" 
+            value="{{ about.tagline or '' }}" 
+            placeholder="e.g. Writer, thinker, and builder."
+          >
+          <span style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block;">Appears beneath your name on the homepage and about page.</span>
+        </div>
+      </div>
+    </div>
+
+    {# Homepage Short Summary #}
+    <div class="form-group" style="margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid var(--border);">
+      <label class="form-label" for="summary" style="font-weight: 700; font-size: 15px;">
+        Homepage Summary (Short Bio)
+      </label>
+      <p style="font-size: 13px; color: var(--text-muted); margin-top: 0; margin-bottom: 10px;">
+        Displayed in the bio card at the bottom of the home page. Keep it concise (1–2 paragraphs).
+      </p>
+      <textarea 
+        id="summary" 
+        name="summary" 
+        class="form-control" 
+        rows="4" 
+        style="resize: vertical; line-height: 1.6;" 
+        placeholder="Brief summary of who you are, what you write about, and what readers will gain..."
+      >{{ about.summary or '' }}</textarea>
+    </div>
+
+    {# Dedicated Page Full Story HTML #}
+    <div class="form-group" style="margin-bottom: 32px;">
+      <label class="form-label" for="full_content_html" style="font-weight: 700; font-size: 15px;">
+        Dedicated About Page Content (Full Story)
+      </label>
+      <p style="font-size: 13px; color: var(--text-muted); margin-top: 0; margin-bottom: 10px;">
+        Full long-form story, manifesto, and philosophy displayed on <a href="{{ url_for('public.about') }}" target="_blank" style="color:var(--accent);">/about</a>. <strong>Supports both Markdown and HTML</strong> (e.g. <code># Heading</code>, <code>**bold**</code>, <code>- list</code>, or standard HTML tags).
+      </p>
+      <textarea 
+        id="full_content_html" 
+        name="full_content_html" 
+        class="form-control" 
+        rows="14" 
+        style="resize: vertical; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.6;"
+        placeholder="## Why I Write&#10;&#10;Writing is the ultimate tool for thinking clearly...&#10;&#10;## The Philosophy&#10;&#10;We live in a world where..."
+      >{{ about.full_content_html or '' }}</textarea>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 12px; align-items: center;">
+      <a href="{{ url_for('public.about') }}" target="_blank" class="btn btn-ghost">View Live ↗</a>
+      <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Save Profile</button>
+    </div>
+
+  </form>
+
+</div>
+
+<script>
+function previewAvatar(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('avatar-preview').src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+}
+</script>
+{% endblock %}

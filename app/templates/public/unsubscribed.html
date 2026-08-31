@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Unsubscribed — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<section class="section container" style="padding-top: 180px; padding-bottom: 120px; text-align: center;">
+  <div style="max-width: 480px; margin: 0 auto;">
+    <h1 class="section-title" style="margin-bottom: 16px;">You've been unsubscribed.</h1>
+    <p class="section-sub" style="margin-bottom: 32px;">
+      We've removed <strong>{{ subscriber.email }}</strong> from our list. You won't receive any more newsletter emails from us.
+    </p>
+    <a href="{{ url_for('public.index') }}" class="btn btn-ghost">Return to Homepage</a>
+  </div>
+</section>
+{% endblock %}

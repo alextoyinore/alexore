@@ -1,0 +1,125 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Comments Moderation{% endblock %}
+{% block page_title %}Comments{% endblock %}
+
+{% block content %}
+<div class="panel">
+  <div class="panel-header" style="border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <a href="{{ url_for('admin.comments', status='all') }}" class="btn btn-sm {{ 'btn-primary' if status_filter == 'all' else 'btn-ghost' }}">
+        All ({{ counts.all }})
+      </a>
+      <a href="{{ url_for('admin.comments', status='pending') }}" class="btn btn-sm {{ 'btn-primary' if status_filter == 'pending' else 'btn-ghost' }}" style="position: relative;">
+        Pending ({{ counts.pending }})
+        {% if counts.pending > 0 %}
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #eab308; margin-left: 4px;"></span>
+        {% endif %}
+      </a>
+      <a href="{{ url_for('admin.comments', status='approved') }}" class="btn btn-sm {{ 'btn-primary' if status_filter == 'approved' else 'btn-ghost' }}">
+        Approved ({{ counts.approved }})
+      </a>
+      <a href="{{ url_for('admin.comments', status='spam') }}" class="btn btn-sm {{ 'btn-primary' if status_filter == 'spam' else 'btn-ghost' }}">
+        Spam ({{ counts.spam }})
+      </a>
+    </div>
+  </div>
+
+  <div class="panel-body" style="padding: 0;">
+    {% if comments %}
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="min-width: 160px;">Author</th>
+            <th style="min-width: 280px;">Comment</th>
+            <th style="min-width: 180px;">Essay</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th style="text-align: right; min-width: 180px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in comments %}
+          <tr style="{{ 'background: rgba(234, 179, 8, 0.05);' if c.status == 'pending_moderation' else '' }}">
+            <td>
+              <div style="font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 6px;">
+                {{ c.author_name }}
+                {% if c.is_author %}
+                  <span class="badge" style="background: var(--accent-dim); color: var(--accent); font-size: 10px; padding: 1px 6px;">Author</span>
+                {% endif %}
+              </div>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">{{ c.author_email }}</div>
+            </td>
+            <td>
+              {% if c.status == 'pending_moderation' and c.flagged_reason %}
+                <div style="background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: 6px; padding: 4px 8px; font-size: 11px; color: #eab308; margin-bottom: 6px; font-weight: 600;">
+                  ⚠ {{ c.flagged_reason }}
+                </div>
+              {% endif %}
+              <div style="color: var(--text); font-size: 14px; line-height: 1.5; max-height: 120px; overflow-y: auto; white-space: pre-wrap;">{{ c.content }}</div>
+            </td>
+            <td>
+              {% if c.post %}
+                <a href="{{ url_for('public.post', slug=c.post.slug) }}" target="_blank" style="font-weight: 600; color: var(--text); font-size: 13px; display: block; margin-bottom: 2px; text-decoration: none !important;">
+                  {{ c.post.title }} ↗
+                </a>
+              {% else %}
+                <span style="color: var(--text-muted); font-size: 12px;">(Deleted Post)</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if c.status == 'approved' %}
+                <span class="badge badge-published">Approved</span>
+              {% elif c.status == 'pending_moderation' %}
+                <span class="badge" style="background: rgba(234, 179, 8, 0.15); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.3);">Held in Moderation</span>
+              {% elif c.status == 'spam' %}
+                <span class="badge badge-draft">Spam</span>
+              {% else %}
+                <span class="badge">{{ c.status }}</span>
+              {% endif %}
+            </td>
+            <td style="color: var(--text-muted); font-size: 12px; white-space: nowrap;">
+              {{ c.created_at.strftime('%Y-%m-%d %H:%M') }}
+            </td>
+            <td style="text-align: right;">
+              <div style="display: inline-flex; gap: 6px; align-items: center;">
+                {% if c.status != 'approved' %}
+                  <a href="{{ url_for('admin.approve_comment', comment_id=c.id) }}" class="btn btn-primary btn-sm" title="Approve and show publicly">
+                    Approve
+                  </a>
+                {% endif %}
+                {% if c.status != 'spam' %}
+                  <a href="{{ url_for('admin.spam_comment', comment_id=c.id) }}" class="btn btn-ghost btn-sm" title="Mark as spam">
+                    Spam
+                  </a>
+                {% endif %}
+                <a href="{{ url_for('admin.delete_comment', comment_id=c.id) }}" class="btn btn-danger btn-sm" onclick="confirmDelete(event, 'this comment by {{ c.author_name }}');" title="Delete permanently">
+                  Delete
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="padding: 64px 24px; text-align: center; color: var(--text-muted);">
+      <p style="font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px;">No comments found</p>
+      <p style="font-size: 14px; margin: 0;">
+        {% if status_filter == 'pending' %}
+          Great job! There are no pending comments awaiting moderation.
+        {% elif status_filter == 'approved' %}
+          No approved comments yet.
+        {% elif status_filter == 'spam' %}
+          No spam comments detected.
+        {% else %}
+          Comments submitted by readers will appear here for moderation.
+        {% endif %}
+      </p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Resources — {{ SITE_NAME }}{% endblock %}
+{% block description %}Curated resources, tools, and learning platforms from {{ SITE_AUTHOR }}.{% endblock %}
+
+{% block content %}
+
+{# ── Hero ─────────────────────────────────────────────────────────────────── #}
+<section class="section container reveal" style="padding-top: 64px; padding-bottom: 48px; text-align: center;">
+  <p class="section-label" style="letter-spacing: 0.3em; font-size: 11px; margin-bottom: 16px;">R E S O U R C E S</p>
+  <h1 class="section-title" style="font-size: clamp(32px, 5vw, 52px); font-weight: 900; max-width: 700px; margin: 0 auto 20px;">Join The New 1%</h1>
+  <p class="section-sub" style="font-size: 17px; max-width: 540px; margin: 0 auto; line-height: 1.7;">
+    Everything you need to build a sharp mind, a meaningful body of work, and a life on your own terms.
+  </p>
+</section>
+
+{# ── Resources Grid ───────────────────────────────────────────────────────── #}
+<section class="section container" style="padding-top: 0; padding-bottom: 100px;">
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;" class="reveal-children dan-resource-grid-3">
+
+    {% for resource in resources %}
+    <a href="{{ url_for('public.resource_detail', slug=resource.slug) }}" class="dan-resource-card" style="text-decoration: none !important; border-bottom: none !important;">
+      <div class="dan-resource-media" style="flex-direction: column; justify-content: center; gap: 10px; padding: 28px; text-align: center;">
+        <div style="font-size: 32px; margin-bottom: 4px; line-height: 1;">{{ resource.icon }}</div>
+        <div style="font-weight: 900; font-size: 20px; color: #0f172a; letter-spacing: -0.01em;">{{ resource.name }}</div>
+        <p style="font-size: 12px; color: #334155; max-width: 240px; margin: 0 auto; font-weight: 600; line-height: 1.5;">{{ resource.tagline }}</p>
+      </div>
+      <div class="dan-resource-body">
+        <h3 class="dan-resource-title">{{ resource.name }}</h3>
+        <p class="dan-resource-desc">{{ resource.description }}</p>
+        <span class="dan-resource-link" style="display: inline-block;">
+          🔗 {{ resource.cta }}
+        </span>
+      </div>
+    </a>
+    {% endfor %}
+
+  </div>
+</section>
+
+{% endblock %}

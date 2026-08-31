@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+
+{% block title %}Writing — {{ SITE_NAME }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homepage_extra.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 110px; padding-bottom: 90px;">
+
+  {# ── 1. Category Subnav (Dan Koe Top Bar) ───────────────────────────── #}
+  <nav class="dan-subnav reveal">
+    <a href="{{ url_for('public.writing') }}" class="dan-subnav-link {{ 'active' if not active_tag }}">Home</a>
+    {% if all_tags %}
+      {% for t in all_tags %}
+        <a href="{{ url_for('public.tag', slug=t.slug) }}" class="dan-subnav-link {{ 'active' if active_tag and active_tag.slug == t.slug }}">{{ t.name }}</a>
+      {% endfor %}
+    {% endif %}
+  </nav>
+
+  {# ── 2. Hero Feature Banner (Sage Gradient Book/Lead Banner) ──────────── #}
+  {% if featured_post and posts.page == 1 and not active_tag %}
+  <section class="dan-hero-banner reveal">
+    <div class="dan-hero-content">
+      <h1 class="dan-hero-title">{{ featured_post.title }}</h1>
+      {% if featured_post.subtitle %}
+        <p class="dan-hero-sub">{{ featured_post.subtitle }}</p>
+      {% else %}
+        <p class="dan-hero-sub">The complete essay breakdown, available to read for free.</p>
+      {% endif %}
+      <a href="{{ url_for('public.post', slug=featured_post.slug) }}" class="dan-hero-btn">
+        <span class="dan-hero-btn-arrow">→</span>
+        <span>READ THE LATEST</span>
+      </a>
+    </div>
+
+    <div class="dan-hero-media">
+      {% if featured_post.cover_image %}
+        <img src="{{ featured_post.cover_image }}" alt="{{ featured_post.title }}">
+      {% else %}
+        <div class="post-card-image-placeholder" style="width: 220px; height: 280px; border-radius: 8px; font-size: 42px;">✦</div>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  {# ── 3. Most Popular Strip ────────────────────────────────────────────── #}
+  
+
+  {# ── 4. Main 2-Column Split (Article List Feed + Sidebar) ─────────────── #}
+  <div class="dan-feed-layout reveal">
+
+    {# ── Left Column: Article List Feed ────────────────────────────────── #}
+    <div class="dan-feed-main">
+      <div class="dan-feed-tabs">
+        <div class="dan-feed-pills">
+          <a href="{{ url_for('public.writing', feed='latest', tag=active_tag.slug if active_tag else None, q=search_query) }}" class="dan-feed-pill {{ 'active' if active_feed == 'latest' or not active_feed }}">Latest</a>
+          <a href="{{ url_for('public.writing', feed='top', tag=active_tag.slug if active_tag else None, q=search_query) }}" class="dan-feed-pill {{ 'active' if active_feed == 'top' }}">Top Views</a>
+          <a href="{{ url_for('public.writing', feed='discussions', tag=active_tag.slug if active_tag else None, q=search_query) }}" class="dan-feed-pill {{ 'active' if active_feed == 'discussions' }}">Top Comments</a>
+        </div>
+
+        <form action="{{ url_for('public.writing') }}" method="GET" class="dan-search-box js-search-form" style="display: flex; align-items: center; gap: 6px;">
+          {% if active_feed %}<input type="hidden" name="feed" value="{{ active_feed }}">{% endif %}
+          {% if active_tag %}<input type="hidden" name="tag" value="{{ active_tag.slug }}">{% endif %}
+          <input type="text" name="q" value="{{ search_query or '' }}" placeholder="Search essays..." class="dan-search-input js-search-input" style="background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 6px 14px; font-size: 13px; color: var(--text); outline: none; width: {{ '180px' if search_query else '0px' }}; opacity: {{ '1' if search_query else '0' }}; transition: all 0.25s ease;">
+          <button type="button" class="js-search-toggle" title="Search articles" style="background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; padding: 4px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+        </form>
+      </div>
+
+      {% if search_query %}
+      <div style="display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 16px; margin-bottom: 24px;">
+        <span style="font-size: 13px; color: var(--text-muted);">
+          Search results for <strong style="color: var(--text);">"{{ search_query }}"</strong> ({{ posts.total }} found)
+        </span>
+        <a href="{{ url_for('public.writing', feed=active_feed, tag=active_tag.slug if active_tag else None) }}" style="font-size: 12px; color: var(--accent); text-decoration: none !important; border-bottom: none !important;">Clear Search ✕</a>
+      </div>
+      {% endif %}
+
+      {% if posts.items %}
+      <div class="dan-article-feed">
+        {% for post in posts.items %}
+        <a href="{{ url_for('public.post', slug=post.slug) }}" class="dan-article-row">
+          <div class="dan-article-content">
+            <h2 class="dan-article-title">{{ post.title }}</h2>
+            {% if post.subtitle %}
+              <p class="dan-article-sub">{{ post.subtitle }}</p>
+            {% endif %}
+            <div class="dan-article-meta">
+              {{ post.published_at.strftime('%b %d') if post.published_at else 'RECENT' }} • {{ SITE_AUTHOR | upper }}
+            </div>
+          </div>
+          <div class="dan-article-thumb">
+            {% if post.cover_image %}
+              <img src="{{ post.cover_image }}" alt="{{ post.title }}" loading="lazy">
+            {% else %}
+              <div class="post-card-image-placeholder" style="font-size:24px;">{{ post.title[0] }}</div>
+            {% endif %}
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+
+      {# Pagination #}
+      {% if posts.pages > 1 %}
+      <div class="pagination" style="justify-content: flex-start; margin-top: 36px;">
+        {% if posts.has_prev %}
+          <a href="{{ url_for('public.writing', page=posts.prev_num, feed=active_feed, tag=active_tag.slug if active_tag else None, q=search_query) }}">‹</a>
+        {% endif %}
+
+        {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+          {% if page_num %}
+            {% if page_num == posts.page %}
+              <span class="current">{{ page_num }}</span>
+            {% else %}
+              <a href="{{ url_for('public.writing', page=page_num, feed=active_feed, tag=active_tag.slug if active_tag else None, q=search_query) }}">{{ page_num }}</a>
+            {% endif %}
+          {% else %}
+            <span>…</span>
+          {% endif %}
+        {% endfor %}
+
+        {% if posts.has_next %}
+          <a href="{{ url_for('public.writing', page=posts.next_num, feed=active_feed, tag=active_tag.slug if active_tag else None, q=search_query) }}">›</a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% else %}
+      <div style="padding: 64px 24px; text-align: center; color: var(--text-muted); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);">
+        <p style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px;">No essays found</p>
+        <p style="font-size: 14px; margin-bottom: 24px;">
+          {% if search_query %}
+            No articles matched your search query "{{ search_query }}".
+          {% else %}
+            No essays published yet in this category.
+          {% endif %}
+        </p>
+        <a href="{{ url_for('public.writing') }}" class="btn btn-primary btn-sm" style="text-decoration: none !important;">View All Essays</a>
+      </div>
+      {% endif %}
+    </div>
+
+    {# ── Right Column: Sidebar ─────────────────────────────────────────── #}
+    <aside class="dan-sidebar">
+      {# Publication / Author Profile Card #}
+      <div class="dan-author-card">
+        <div class="dan-author-avatar">
+          {{ SITE_NAME[0] | upper }}
+        </div>
+        <div>
+          <h3 class="dan-author-name">{{ SITE_NAME }}</h3>
+          <p class="dan-author-bio">{{ SITE_TAGLINE }}</p>
+        </div>
+        <a href="{{ url_for('public.newsletter') }}" class="btn btn-primary btn-sm" style="width: 100%; justify-content: center; margin-top: 4px;">
+          Subscribe Free
+        </a>
+      </div>
+
+      {# Recommendations Card #}
+      <div class="dan-recs-card">
+        <div class="dan-section-header" style="margin-bottom: 12px;">
+          <h3 class="dan-section-title" style="font-size: 15px;">Recommendations</h3>
+          <span class="dan-section-viewall">VIEW ALL</span>
+        </div>
+
+        <div class="dan-rec-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+            <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
+            <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
+          </svg>
+          <div class="dan-rec-info">
+            <span class="dan-rec-title">Profound Ideas</span>
+            <span class="dan-rec-author">Mindset &amp; Perspective</span>
+          </div>
+        </div>
+
+        <div class="dan-rec-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <div class="dan-rec-info">
+            <span class="dan-rec-title">Modern Freedom</span>
+            <span class="dan-rec-author">Digital Leverage</span>
+          </div>
+        </div>
+
+        <div class="dan-rec-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+          </svg>
+          <div class="dan-rec-info">
+            <span class="dan-rec-title">Systems &amp; Growth</span>
+            <span class="dan-rec-author">High-Signal Work</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+</div>
+{% endblock %}

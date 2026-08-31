@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page.title if page else 'Terms & Conditions' }} — {{ SITE_NAME }}{% endblock %}
+{% block description %}Terms and conditions of use for {{ SITE_NAME }} and related services by {{ SITE_AUTHOR }}.{% endblock %}
+
+{% block content %}
+<article style="padding: 64px 0 100px;">
+  <header style="text-align: center; max-width: 720px; margin: 0 auto 48px; padding: 0 24px;">
+    <p class="section-label" style="letter-spacing: 0.3em; font-size: 11px; margin-bottom: 12px;">L E G A L</p>
+    <h1 style="font-size: clamp(32px, 4vw, 48px); font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 12px;">
+      {{ page.title if page else 'Terms & Conditions' }}
+    </h1>
+    <p style="font-size: 14px; color: var(--text-muted);">
+      Last updated: {{ page.updated_at.strftime('%B %d, %Y') if page and page.updated_at else (now.strftime('%B %d, %Y') if now else 'August 31, 2026') }}
+    </p>
+  </header>
+
+  <div class="reader-container" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: clamp(24px, 5vw, 48px);">
+    <div class="post-body" style="font-size: 16px; line-height: 1.8;">
+      {% if page %}
+        {{ page.content_html | markdown_or_html | safe }}
+      {% else %}
+        <h2>1. Agreement to Terms</h2>
+        <p>By accessing or using {{ SITE_NAME }}, you agree to these Terms & Conditions.</p>
+      {% endif %}
+    </div>
+  </div>
+</article>
+{% endblock %}

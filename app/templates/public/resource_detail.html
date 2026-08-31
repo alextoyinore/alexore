@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}{{ resource.name }} — {{ SITE_NAME }}{% endblock %}
+{% block description %}{{ resource.description }}{% endblock %}
+
+{% block content %}
+
+{# ── Hero Banner ─────────────────────────────────────────────────────────── #}
+<section style="background: linear-gradient(135deg, #D6EBFF 0%, #e8f4ff 100%); padding: 80px 0 64px; text-align: center;">
+  <div class="container">
+    <p class="section-label" style="letter-spacing: 0.3em; font-size: 11px; margin-bottom: 20px; color: #334155;">
+      <a href="{{ url_for('public.resources') }}" style="color: #0284c7; text-decoration: none !important; border-bottom: none !important;">Resources</a>
+      &nbsp;›&nbsp; {{ resource.name }}
+    </p>
+    <div style="font-size: 52px; margin-bottom: 16px; line-height: 1;">{{ resource.icon }}</div>
+    <h1 style="font-size: clamp(32px, 5vw, 54px); font-weight: 900; color: #0f172a; margin: 0 auto 20px; max-width: 700px; line-height: 1.1;">
+      {{ resource.name }}
+    </h1>
+    <p style="font-size: 18px; color: #334155; max-width: 580px; margin: 0 auto 36px; line-height: 1.7; font-weight: 500;">
+      {{ resource.tagline }}
+    </p>
+    <a href="#learn-more" class="btn btn-primary" style="font-size: 15px; padding: 14px 32px; text-decoration: none !important; border-bottom: none !important;">
+      {{ resource.cta }} →
+    </a>
+  </div>
+</section>
+
+{# ── Description / About ─────────────────────────────────────────────────── #}
+<section class="section container reveal" id="learn-more" style="max-width: 720px; margin: 0 auto; padding-top: 72px; padding-bottom: 40px;">
+  <p style="font-size: 18px; line-height: 1.85; color: var(--text); white-space: pre-line;">{{ resource.body }}</p>
+</section>
+
+{# ── What You'll Get ─────────────────────────────────────────────────────── #}
+{% if resource.features %}
+<section class="section container reveal" style="max-width: 720px; margin: 0 auto; padding-top: 0; padding-bottom: 80px;">
+  <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 28px;">What's included</h2>
+  <div style="display: flex; flex-direction: column; gap: 16px;">
+    {% for feature in resource.features %}
+    <div style="display: flex; gap: 14px; align-items: flex-start;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:2px;">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <span style="font-size: 15px; color: var(--text); line-height: 1.6;">{{ feature }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{# ── CTA Strip ───────────────────────────────────────────────────────────── #}
+<section class="section container reveal" style="padding-bottom: 100px;">
+  <div class="newsletter-strip" style="text-align: center;">
+    <p class="section-label" style="letter-spacing: 0.25em; margin-bottom: 12px;">GET STARTED</p>
+    <h2 class="section-title" style="margin-bottom: 12px;">Ready to dive in?</h2>
+    <p class="section-sub" style="margin: 0 auto 32px; max-width: 480px;">{{ resource.tagline }}</p>
+    <a href="{{ url_for('public.newsletter') }}" class="btn btn-primary" style="font-size: 15px; padding: 14px 32px; text-decoration: none !important; border-bottom: none !important;">
+      {{ resource.cta }} →
+    </a>
+    <div style="margin-top: 20px;">
+      <a href="{{ url_for('public.resources') }}" style="font-size: 13px; color: var(--text-muted); text-decoration: none !important; border-bottom: none !important;">
+        ← Back to all resources
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
