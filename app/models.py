@@ -4,6 +4,26 @@ from flask_login import UserMixin
 from app import db
 
 
+# ── Topic ──────────────────────────────────────────────────────────────────────
+
+class Topic(db.Model):
+    """Admin-managed navigation categories for the writing page."""
+    id       = db.Column(db.Integer, primary_key=True)
+    name     = db.Column(db.String(100), unique=True, nullable=False)
+    slug     = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    order    = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    posts    = db.relationship('Post', back_populates='topic', lazy='dynamic')
+
+    @classmethod
+    def get_first(cls):
+        return cls.query.order_by(cls.order, cls.id).first()
+
+    def __repr__(self):
+        return f'<Topic {self.name}>'
+
+
 # ── Tag ────────────────────────────────────────────────────────────────────────
 
 post_tags = db.Table(
@@ -64,6 +84,10 @@ class Post(db.Model):
     published_at = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Topic FK (navigation category — managed in admin)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'), nullable=True, index=True)
+    topic    = db.relationship('Topic', back_populates='posts', foreign_keys=[topic_id])
 
     # Relations
     tags = db.relationship('Tag', secondary=post_tags, backref='posts', lazy='dynamic')

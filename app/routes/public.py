@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, abort, request, current_app
 from app import db
-from app.models import Post, Tag, Subscriber, Comment, AboutMe, LegalPage
+from app.models import Post, Tag, Topic, Subscriber, Comment, AboutMe, LegalPage
 
 public_bp = Blueprint('public', __name__)
 
@@ -44,17 +44,11 @@ def about():
 
 @public_bp.route('/writing')
 def writing():
-    tag_slug = request.args.get('tag')
     feed = request.args.get('feed', 'latest')
     q = request.args.get('q', '').strip()
     page = request.args.get('page', 1, type=int)
 
     query = Post.query.filter_by(status=Post.STATUS_PUBLISHED)
-
-    active_tag = None
-    if tag_slug:
-        active_tag = Tag.query.filter_by(slug=tag_slug).first_or_404()
-        query = query.filter(Post.tags.any(Tag.slug == tag_slug))
 
     if q:
         query = query.filter(
@@ -76,7 +70,7 @@ def writing():
     posts = query.order_by(*order_clause).paginate(
         page=page, per_page=10, error_out=False
     )
-    all_tags = Tag.query.all()
+    all_topics = Topic.query.order_by(Topic.order, Topic.name).all()
     subscriber_count = Subscriber.query.filter_by(status='active').count()
 
     popular_posts = (
@@ -97,13 +91,66 @@ def writing():
     return render_template(
         'public/writing.html',
         posts=posts,
-        all_tags=all_tags,
-        active_tag=active_tag,
+        all_topics=all_topics,
+        active_topic=None,
         active_feed=feed,
         search_query=q,
         subscriber_count=subscriber_count,
         featured_post=featured_post,
         popular_posts=popular_posts,
+    )
+
+
+@public_bp.route('/writing/topic/<slug>')
+def topic_writing(slug):
+    topic = Topic.query.filter_by(slug=slug).first_or_404()
+    feed = request.args.get('feed', 'latest')
+    q = request.args.get('q', '').strip()
+    page = request.args.get('page', 1, type=int)
+
+    query = Post.query.filter(
+        Post.status == Post.STATUS_PUBLISHED,
+        Post.topic_id == topic.id
+    )
+
+    if q:
+        query = query.filter(
+            db.or_(
+                Post.title.ilike(f'%{q}%'),
+                Post.subtitle.ilike(f'%{q}%'),
+                Post.content_html.ilike(f'%{q}%')
+            )
+        )
+
+    if feed == 'top':
+        order_clause = [Post.views.desc(), Post.published_at.desc()]
+    elif feed == 'discussions':
+        order_clause = [Post.comment_count.desc(), Post.views.desc(), Post.published_at.desc()]
+    else:
+        feed = 'latest'
+        order_clause = [Post.published_at.desc()]
+
+    posts = query.order_by(*order_clause).paginate(page=page, per_page=10, error_out=False)
+    all_topics = Topic.query.order_by(Topic.order, Topic.name).all()
+    subscriber_count = Subscriber.query.filter_by(status='active').count()
+
+    featured_post = (
+        Post.query
+        .filter(Post.status == Post.STATUS_PUBLISHED, Post.topic_id == topic.id, Post.featured == True)
+        .order_by(Post.published_at.desc())
+        .first()
+    )
+
+    return render_template(
+        'public/writing.html',
+        posts=posts,
+        all_topics=all_topics,
+        active_topic=topic,
+        active_feed=feed,
+        search_query=q,
+        subscriber_count=subscriber_count,
+        featured_post=featured_post,
+        popular_posts=[],
     )
 
 
@@ -160,17 +207,20 @@ def tag(slug):
         order_clause = [Post.published_at.desc()]
 
     posts = query.order_by(*order_clause).paginate(page=page, per_page=10, error_out=False)
-    all_tags = Tag.query.all()
+    all_topics = Topic.query.order_by(Topic.order, Topic.name).all()
     subscriber_count = Subscriber.query.filter_by(status='active').count()
 
     return render_template(
         'public/writing.html',
         posts=posts,
-        all_tags=all_tags,
+        all_topics=all_topics,
+        active_topic=None,
         active_tag=t,
         active_feed=feed,
         search_query=q,
         subscriber_count=subscriber_count,
+        featured_post=None,
+        popular_posts=[],
     )
 
 

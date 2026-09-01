@@ -40,9 +40,33 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', '').replace(
-        'postgres://', 'postgresql://'  # Fix for Railway/Heroku
-    )
+
+    @staticmethod
+    def _build_db_uri():
+        """
+        Build the SQLAlchemy DB URI for production.
+        Prefers DATABASE_URL env var if set.
+        Falls back to composing a mysql+pymysql:// URI from individual parts.
+        """
+        url = os.environ.get('DATABASE_URL', '')
+        if url:
+            # Normalise legacy postgres:// to postgresql:// (Railway/Heroku)
+            url = url.replace('postgres://', 'postgresql://')
+            return url
+
+        # Compose MySQL URL from individual cPanel-style env vars
+        user   = os.environ.get('DB_USER', '')
+        passwd = os.environ.get('DB_PASSWORD', '')
+        host   = os.environ.get('DB_HOST', 'localhost')
+        port   = os.environ.get('DB_PORT', '3306')
+        name   = os.environ.get('DB_NAME', '')
+        return f'mysql+pymysql://{user}:{passwd}@{host}:{port}/{name}?charset=utf8mb4'
+
+    SQLALCHEMY_DATABASE_URI = _build_db_uri.__func__()  # evaluated at class load time
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_recycle': 280,   # cPanel MySQL connections drop after ~5 min idle
+        'pool_pre_ping': True, # detect stale connections before use
+    }
 
 
 config = {

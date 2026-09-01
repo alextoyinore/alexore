@@ -423,7 +423,16 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Tags (press Enter)</label>
+          <label class="form-label">Topic <span style="color:var(--text-muted);font-weight:400;">(navigation category)</span></label>
+          <select name="topic_id" class="form-control">
+            {% for t in all_topics %}
+              <option value="{{ t.id }}" {{ 'selected' if post and post.topic_id == t.id }}>{{ t.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tags <span style="color:var(--text-muted);font-weight:400;">(appear at bottom of article)</span></label>
           <div class="tags-input-wrapper" id="tags-wrapper">
             <input type="text" id="tags-raw-input" class="tags-raw-input" placeholder="Add tag...">
           </div>

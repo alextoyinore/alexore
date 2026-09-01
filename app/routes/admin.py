@@ -7,7 +7,7 @@ from flask import (Blueprint, render_template, redirect, url_for,
 from flask_login import login_required
 from slugify import slugify
 from app import db
-from app.models import Post, Tag, Subscriber, Comment, AboutMe, LegalPage
+from app.models import Post, Tag, Topic, Subscriber, Comment, AboutMe, LegalPage
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -74,9 +74,10 @@ def posts():
 @login_required
 def new_post():
     all_tags = Tag.query.order_by(Tag.name).all()
+    all_topics = Topic.query.order_by(Topic.order, Topic.name).all()
     if request.method == 'POST':
         return _save_post(None)
-    return render_template('admin/editor.html', post=None, all_tags=all_tags)
+    return render_template('admin/editor.html', post=None, all_tags=all_tags, all_topics=all_topics)
 
 
 # ── Edit Post ──────────────────────────────────────────────────────────────────
@@ -86,9 +87,10 @@ def new_post():
 def edit_post(post_id):
     p = Post.query.get_or_404(post_id)
     all_tags = Tag.query.order_by(Tag.name).all()
+    all_topics = Topic.query.order_by(Topic.order, Topic.name).all()
     if request.method == 'POST':
         return _save_post(p)
-    return render_template('admin/editor.html', post=p, all_tags=all_tags)
+    return render_template('admin/editor.html', post=p, all_tags=all_tags, all_topics=all_topics)
 
 
 def _save_post(post):
@@ -115,6 +117,14 @@ def _save_post(post):
     # Slug
     raw_slug = request.form.get('slug', '').strip()
     post.slug = slugify(raw_slug or title)
+
+    # Topic (default to first topic if not provided)
+    topic_id = request.form.get('topic_id', type=int)
+    if topic_id:
+        post.topic_id = topic_id
+    elif not post.topic_id:
+        first_topic = Topic.get_first()
+        post.topic_id = first_topic.id if first_topic else None
 
     # Status
     action = request.form.get('action', 'draft')
@@ -512,3 +522,60 @@ def edit_legal_page(slug):
         return redirect(url_for('admin.legal_pages'))
 
     return render_template('admin/legal_editor.html', page=page)
+
+
+# ── Topics Management ──────────────────────────────────────────────────────────
+
+@admin_bp.route('/topics')
+@login_required
+def topics():
+    all_topics = Topic.query.order_by(Topic.order, Topic.name).all()
+    return render_template('admin/topics.html', topics=all_topics)
+
+
+@admin_bp.route('/topics/new', methods=['POST'])
+@login_required
+def create_topic():
+    name = request.form.get('name', '').strip()
+    if not name:
+        flash('Topic name is required.', 'error')
+        return redirect(url_for('admin.topics'))
+    sl = slugify(name)
+    if Topic.query.filter_by(slug=sl).first():
+        flash(f'A topic named "{name}" already exists.', 'error')
+        return redirect(url_for('admin.topics'))
+    order = Topic.query.count()
+    db.session.add(Topic(name=name, slug=sl, order=order))
+    db.session.commit()
+    flash(f'Topic "{name}" created.', 'success')
+    return redirect(url_for('admin.topics'))
+
+
+@admin_bp.route('/topics/<int:topic_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_topic(topic_id):
+    t = Topic.query.get_or_404(topic_id)
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        if name:
+            t.name = name
+            t.slug = slugify(name)
+        db.session.commit()
+        flash(f'Topic "{t.name}" updated.', 'success')
+        return redirect(url_for('admin.topics'))
+    return render_template('admin/topics.html', topics=Topic.query.order_by(Topic.order).all(), edit_topic=t)
+
+
+@admin_bp.route('/topics/<int:topic_id>/delete', methods=['POST'])
+@login_required
+def delete_topic(topic_id):
+    t = Topic.query.get_or_404(topic_id)
+    # Re-assign posts to first remaining topic
+    first = Topic.query.filter(Topic.id != topic_id).order_by(Topic.order).first()
+    if first:
+        Post.query.filter_by(topic_id=t.id).update({'topic_id': first.id})
+    name = t.name
+    db.session.delete(t)
+    db.session.commit()
+    flash(f'Topic "{name}" deleted. Posts re-assigned.', 'success')
+    return redirect(url_for('admin.topics'))

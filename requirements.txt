@@ -9,7 +9,8 @@ python-dotenv>=1.0.0
 resend>=2.0.0
 gunicorn>=22.0.0
 Pillow
-psycopg2-binary
+PyMySQL>=1.1.0
+cryptography>=42.0.0
 werkzeug>=3.0.0
 wtforms>=3.1.0
 email-validator>=2.0.0
