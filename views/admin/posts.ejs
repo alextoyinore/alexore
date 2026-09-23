@@ -1,0 +1,84 @@
+<div class="panel">
+  <div class="panel-header" style="border-bottom: 1px solid var(--border);">
+    <div style="display: flex; gap: 8px;">
+      <a href="/admin/posts?status=all" class="btn btn-sm <%= status_filter === 'all' ? 'btn-primary' : 'btn-ghost' %>">All</a>
+      <a href="/admin/posts?status=published" class="btn btn-sm <%= status_filter === 'published' ? 'btn-primary' : 'btn-ghost' %>">Published</a>
+      <a href="/admin/posts?status=draft" class="btn btn-sm <%= status_filter === 'draft' ? 'btn-primary' : 'btn-ghost' %>">Drafts</a>
+    </div>
+  </div>
+
+  <div class="panel-body" style="padding: 0;">
+    <% if (posts && posts.length > 0) { %>
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Title & Subtitle</th>
+            <th>Status</th>
+            <th>Tags</th>
+            <th>Views</th>
+            <th>Published</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% posts.forEach(post => { %>
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 64px; height: 46px; border-radius: 6px; overflow: hidden; background: var(--surface-2); border: 1px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                  <% if (post.cover_image) { %>
+                    <img src="<%= post.cover_image %>" alt="<%= post.title %>" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                  <% } else { %>
+                    <span style="font-size: 16px; font-weight: 800; color: var(--text-muted);"><%= post.title ? post.title[0].toUpperCase() : '✦' %></span>
+                  <% } %>
+                </div>
+                <div style="min-width: 0;">
+                  <a href="/admin/edit/<%= post.id %>" style="font-size: 14px; font-weight: 700; color: var(--text); display: block; margin-bottom: 2px; text-decoration: none !important;">
+                    <%= post.title %>
+                  </a>
+                  <% if (post.subtitle) { %>
+                    <span style="font-size: 12px; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;"><%= post.subtitle %></span>
+                  <% } %>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="badge badge-<%= post.status %>"><%= post.status %></span>
+              <% if (post.featured) { %>
+                <span class="badge" style="background:var(--accent-dim);color:var(--accent);">Featured</span>
+              <% } %>
+            </td>
+            <td>
+              <% if (post.tags) { %>
+                <% post.tags.forEach(tag => { %>
+                  <span class="tag-chip" style="font-size: 10px;"><%= tag.name %></span>
+                <% }) %>
+              <% } %>
+            </td>
+            <td style="color: var(--text-muted); font-weight: 600;"><%= post.views || 0 %></td>
+            <td style="color: var(--text-muted); font-size: 12px;">
+              <%= post.published_at ? new Date(post.published_at).toISOString().split('T')[0] : 'Draft' %>
+            </td>
+            <td>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <a href="/admin/edit/<%= post.id %>" class="btn btn-ghost btn-sm">Edit</a>
+                <% if (post.status === 'published') { %>
+                  <a href="/writing/<%= post.slug %>" target="_blank" class="btn btn-ghost btn-sm">View</a>
+                <% } %>
+                <a href="/admin/delete/<%= post.id %>" class="btn btn-danger btn-sm"
+                   onclick="return confirm('Are you sure you want to delete <%= (post.title || '').replace(/'/g, '\\\'') %>?');">Delete</a>
+              </div>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } else { %>
+    <div style="padding: 48px; text-align: center; color: var(--text-muted);">
+      No essays found. <a href="/admin/new" style="color: var(--accent);">Create one now</a>.
+    </div>
+    <% } %>
+  </div>
+</div>

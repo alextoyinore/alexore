@@ -1,0 +1,55 @@
+
+<div style="max-width: 840px; margin: 0 auto;">
+  <div class="panel" style="padding: 28px;">
+
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+      <div>
+        <h3 style="margin: 0; font-size: 18px; color: var(--text);">Email Broadcast Campaign</h3>
+        <p style="margin: 4px 0 0; font-size: 13px; color: var(--text-muted);">
+          Sending via Resend (<code style="color: var(--accent);"><%= typeof RESEND_FROM_EMAIL !== 'undefined' && RESEND_FROM_EMAIL ? RESEND_FROM_EMAIL : '' %></code>)
+        </p>
+      </div>
+      <div style="background: var(--surface-2); border: 1px solid var(--border); padding: 8px 16px; border-radius: var(--radius); text-align: right;">
+        <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); display: block;">Active Subscribers</span>
+        <strong style="font-size: 18px; color: var(--accent);"><%= active_count || 0 %></strong>
+      </div>
+    </div>
+
+    <form method="POST" id="campaign-form">
+      <input type="hidden" name="action_type" id="action_type" value="send">
+
+      <div class="form-group">
+        <label class="form-label">Campaign Subject</label>
+        <input type="text" name="subject" class="form-control" placeholder="e.g. Issue #14: The One-Person Business Engine" required style="font-size: 15px; font-weight: 600;">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Content (HTML supported)</label>
+        <textarea name="body_html" id="body_html" class="form-control" rows="14" placeholder="Write your newsletter essay or HTML update here..." required style="font-family: monospace; font-size: 13px; line-height: 1.5;"></textarea>
+      </div>
+
+      <!-- Test Email Box -->
+      <div style="background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px;">
+        <label class="form-label" style="margin-bottom: 8px;">Send Test Preview</label>
+        <div style="display: flex; gap: 12px;">
+          <input type="email" name="test_email" class="form-control" value="<%= typeof RESEND_FROM_EMAIL !== 'undefined' && RESEND_FROM_EMAIL ? RESEND_FROM_EMAIL : '' %>" placeholder="Enter test recipient email..." style="flex: 1;">
+          <button type="submit" onclick="document.getElementById('action_type').value='test';" class="btn btn-ghost" style="white-space: nowrap;">
+            ✉ Send Test Email
+          </button>
+        </div>
+      </div>
+
+      <!-- Broadcast Actions -->
+      <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 16px; border-top: 1px solid var(--border);">
+        <p style="font-size: 12px; color: var(--text-muted); margin: 0; max-width: 400px;">
+          Broadcasts will deliver directly to all <strong><%= active_count || 0 %> active subscribers</strong> with an automated 1-click unsubscribe footer.
+        </p>
+
+        <button type="submit" onclick="document.getElementById('action_type').value='send'; return confirm('Are you sure you want to broadcast this campaign to all <%= active_count || 0 %> active subscribers?');" class="btn btn-primary">
+          🚀 Broadcast to <%= active_count || 0 %> Subscribers
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>

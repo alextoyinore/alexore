@@ -1,0 +1,100 @@
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-card-label">Total Published</div>
+    <div class="stat-card-value accent"><%= stats.published %></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-label">Active Subscribers</div>
+    <div class="stat-card-value accent"><%= stats.subscribers %></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-label">Total Digital Products</div>
+    <div class="stat-card-value"><%= stats.total_products %></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-label">Store Outbound Clicks</div>
+    <div class="stat-card-value accent" style="color: #10b981;"><%= stats.total_clicks %></div>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  <!-- Recent Posts -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title">Recent Essays</h2>
+      <a href="/admin/posts" class="btn btn-ghost btn-sm">View All →</a>
+    </div>
+    <div class="panel-body" style="padding: 0;">
+      <% if (recent_posts && recent_posts.length > 0) { %>
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Views</th>
+              <th>Updated</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% recent_posts.forEach(post => { %>
+            <tr>
+              <td>
+                <a href="/admin/edit/<%= post.id %>" style="font-weight: 600; color: var(--text);"><%= post.title %></a>
+              </td>
+              <td>
+                <span class="badge badge-<%= post.status %>"><%= post.status %></span>
+              </td>
+              <td style="color: var(--text-muted);"><%= post.views || 0 %></td>
+              <td style="color: var(--text-muted); font-size: 12px;">
+                <%= post.updated_at ? new Date(post.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—' %>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% } else { %>
+      <div style="padding: 32px; text-align: center; color: var(--text-muted);">
+        No posts created yet. <a href="/admin/new" style="color: var(--accent);">Write your first essay</a>.
+      </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Recent Subscribers -->
+  <div class="panel">
+    <div class="panel-header">
+      <h2 class="panel-title">New Subscribers</h2>
+      <a href="/admin/subscribers" class="btn btn-ghost btn-sm">View All →</a>
+    </div>
+    <div class="panel-body" style="padding: 0;">
+      <% if (recent_subs && recent_subs.length > 0) { %>
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% recent_subs.forEach(sub => { %>
+            <tr>
+              <td style="font-weight: 500;"><%= sub.email %></td>
+              <td style="color: var(--text-muted); font-size: 12px;">
+                <%= sub.subscribed_at ? new Date(sub.subscribed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—' %>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% } else { %>
+      <div style="padding: 32px; text-align: center; color: var(--text-muted);">
+        No subscribers yet.
+      </div>
+      <% } %>
+    </div>
+  </div>
+</div>

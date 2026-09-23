@@ -1,0 +1,56 @@
+<%
+  topbar_actions = `
+<div style="display:flex; gap: 8px;">
+  <a href="/admin/subscribers/export" class="btn btn-ghost btn-sm">↓ Export CSV</a>
+  <a href="/admin/send-email" class="btn btn-primary btn-sm">Compose Campaign</a>
+</div>
+`;
+%>
+
+<div class="panel">
+  <div class="panel-header">
+    <h2 class="panel-title">All Subscribers (<%= subscribers ? subscribers.length : 0 %>)</h2>
+  </div>
+  <div class="panel-body" style="padding: 0;">
+    <% if (subscribers && subscribers.length > 0) { %>
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Source</th>
+            <th>Subscribed Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% subscribers.forEach(sub => { %>
+          <tr>
+            <td style="font-weight: 600; color: var(--text);"><%= sub.email %></td>
+            <td><%= sub.name || '—' %></td>
+            <td>
+              <span class="badge badge-<%= sub.status %>"><%= sub.status %></span>
+            </td>
+            <td>
+              <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-muted);"><%= sub.source || 'homepage' %></span>
+            </td>
+            <td style="color: var(--text-muted); font-size: 12px;">
+              <%= new Date(sub.subscribed_at).toISOString().slice(0,16).replace('T',' ') %>
+            </td>
+            <td>
+              <a href="/admin/subscribers/<%= sub.id %>/delete" class="btn btn-danger btn-sm" onclick="confirmDelete(event, '<%= sub.email %>');">Delete</a>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } else { %>
+    <div style="padding: 48px; text-align: center; color: var(--text-muted);">
+      No subscribers yet. They will appear here when users sign up on your site.
+    </div>
+    <% } %>
+  </div>
+</div>

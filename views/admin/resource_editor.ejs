@@ -1,0 +1,55 @@
+
+<div style="max-width: 720px;">
+  <form method="POST">
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label">Name</label>
+        <input type="text" name="name" class="form-control" value="<%= resource ? resource.name : '' %>" placeholder="e.g. Soft Skills Academy" required>
+      </div>
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label">URL Slug</label>
+        <input type="text" name="slug" class="form-control" value="<%= resource ? resource.slug : '' %>" placeholder="auto-generated from name">
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 80px 1fr; gap: 20px; margin-bottom: 20px;">
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label">Icon</label>
+        <input type="text" name="icon" class="form-control" value="<%= resource ? resource.icon : '' %>" placeholder="🧠" style="font-size: 24px; text-align: center;">
+      </div>
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label">Tagline <span style="font-weight:400; color:var(--text-muted);">(short, shown in card)</span></label>
+        <input type="text" name="tagline" class="form-control" value="<%= resource ? resource.tagline : '' %>" placeholder="One powerful sentence about this resource">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">CTA Button Text</label>
+      <input type="text" name="cta" class="form-control" value="<%= resource ? resource.cta : '' %>" placeholder="e.g. Join Soft Skills Academy">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Description <span style="font-weight:400; color:var(--text-muted);">(shown in card body)</span></label>
+      <textarea name="description" class="form-control" rows="3" placeholder="Brief description for the resource card..."><%= resource ? resource.description : '' %></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Full Body <span style="font-weight:400; color:var(--text-muted);">(shown on detail page — plain text or HTML)</span></label>
+      <textarea name="body" class="form-control" rows="8" placeholder="Detailed description, essay-style intro, or HTML..."><%= resource ? resource.body : '' %></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Features <span style="font-weight:400; color:var(--text-muted);">(one per line — shown as checklist)</span></label>
+      <textarea name="features" class="form-control" rows="5" placeholder="Weekly essay drops&#10;Mental model library&#10;Private community access&#10;Live Q&amp;A sessions"><%= resource && resource.features ? resource.features.join('\n') : '' %></textarea>
+    </div>
+
+    <div style="display: flex; gap: 12px; padding-top: 8px;">
+      <button type="submit" class="btn btn-primary">
+        <%= resource ? 'Save Changes' : 'Create Resource' %>
+      </button>
+      <a href="/admin/resources" class="btn btn-ghost" style="text-decoration:none !important;">Cancel</a>
+    </div>
+
+  </form>
+</div>

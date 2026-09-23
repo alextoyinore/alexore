@@ -1,0 +1,39 @@
+
+<div style="max-width: 960px;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px;">
+    <div>
+      <h3 style="margin: 0; font-size: 18px; color: var(--text);">Legal Policies & Disclosures</h3>
+      <p style="margin: 4px 0 0; font-size: 13px; color: var(--text-muted);">
+        Manage your website's Terms of Service, Privacy Policy, and Disclaimers.
+      </p>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 14px;">
+    <% (pages || []).forEach(p => { %>
+    <div class="panel" style="padding: 20px 28px; display: flex; align-items: center; gap: 20px; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 16px; min-width: 0;">
+        <div style="width: 42px; height: 42px; border-radius: var(--radius); background: var(--surface-2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+          <% if (p.slug === 'terms') { %>📜<% } else if (p.slug === 'privacy') { %>🔒<% } else { %>⚖️<% } %>
+        </div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 3px;">
+            <strong style="font-size: 16px; color: var(--text);"><%= p.title %></strong>
+            <span style="font-size: 11px; color: var(--text-muted); background: var(--surface-2); border: 1px solid var(--border); border-radius: 100px; padding: 2px 8px;">/<%= p.slug %></span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin: 0;">
+            Last updated: <%= p.updated_at ? new Date(p.updated_at).toLocaleString() : 'Initial version' %>
+          </p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 8px; flex-shrink: 0; align-items: center;">
+        <a href="/<%= p.slug %>" target="_blank" class="btn btn-ghost btn-sm" style="text-decoration:none !important;">View Live ↗</a>
+        <a href="/admin/legal/<%= p.slug %>/edit" class="btn btn-primary btn-sm" style="text-decoration:none !important;">Edit Policy</a>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+
+</div>

@@ -1,0 +1,21 @@
+<article style="padding: 64px 0 100px;">
+  <header style="text-align: center; max-width: 720px; margin: 0 auto 48px; padding: 0 24px;">
+    <p class="section-label" style="letter-spacing: 0.3em; font-size: 11px; margin-bottom: 12px;">L E G A L</p>
+    <h1 style="font-size: clamp(32px, 4vw, 48px); font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 12px;">
+      <%= page ? page.title : 'Legal Document' %>
+    </h1>
+    <p style="font-size: 14px; color: var(--text-muted);">
+      Last updated: <%= page && page.updated_at ? new Date(page.updated_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Recently' %>
+    </p>
+  </header>
+
+  <div class="reader-container" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: clamp(24px, 5vw, 48px);">
+    <div class="post-body" style="font-size: 16px; line-height: 1.8;">
+      <% if (page) { %>
+        <%- markdown_or_html(page.content_html) %>
+      <% } else { %>
+        <p>This page is currently being updated. Please check back soon.</p>
+      <% } %>
+    </div>
+  </div>
+</article>

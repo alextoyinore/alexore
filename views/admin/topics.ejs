@@ -1,0 +1,129 @@
+<%
+  topbar_actions = `<button onclick="document.getElementById('new-topic-modal').classList.add('open')" class="btn btn-primary btn-sm">+ New Topic</button>`;
+%>
+
+<!-- New Topic Modal -->
+<div id="new-topic-modal" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-card" style="max-width:420px;">
+    <div class="modal-header">
+      <h3 class="modal-title">New Topic</h3>
+      <button onclick="document.getElementById('new-topic-modal').classList.remove('open')" class="modal-close">✕</button>
+    </div>
+    <form action="/admin/topics" method="POST">
+      <div class="modal-body">
+        <label class="form-label">Topic Name</label>
+        <input type="text" name="name" class="form-input" placeholder="e.g. Philosophy" required autofocus>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">The slug is auto-generated from the name.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="document.getElementById('new-topic-modal').classList.remove('open')" class="btn btn-ghost btn-sm">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm">Create Topic</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Topic Modal -->
+<% if (edit_topic) { %>
+<div id="edit-topic-modal" class="modal-overlay open" onclick="if(event.target===this)window.location='/admin/topics'">
+  <div class="modal-card" style="max-width:420px;">
+    <div class="modal-header">
+      <h3 class="modal-title">Edit Topic</h3>
+      <a href="/admin/topics" class="modal-close">✕</a>
+    </div>
+    <form action="/admin/topics/<%= edit_topic.id %>" method="POST">
+      <div class="modal-body">
+        <label class="form-label">Topic Name</label>
+        <input type="text" name="name" class="form-input" value="<%= edit_topic.name %>" required autofocus>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Slug: <code><%= edit_topic.slug %></code> (will update on save)</p>
+      </div>
+      <div class="modal-footer">
+        <a href="/admin/topics" class="btn btn-ghost btn-sm">Cancel</a>
+        <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+<% } %>
+
+<!-- Topics Table -->
+<div class="panel">
+  <div class="panel-header" style="border-bottom: 1px solid var(--border);">
+    <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
+      Topics appear as navigation tabs on the writing page. Each article must belong to one topic.
+    </p>
+  </div>
+
+  <div class="panel-body" style="padding: 0;">
+    <% if (topics && topics.length > 0) { %>
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Slug</th>
+            <th>Articles</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% topics.forEach(t => { %>
+          <tr>
+            <td style="font-weight: 700; color: var(--text);"><%= t.name %></td>
+            <td><code style="font-size: 12px; color: var(--text-muted);">/writing/topic/<%= t.slug %></code></td>
+            <td style="color: var(--text-muted);"><%= t.post_count || 0 %> published</td>
+            <td>
+              <div style="display: flex; gap: 8px;">
+                <a href="/admin/topics/<%= t.id %>/edit" class="btn btn-ghost btn-sm">Edit</a>
+                <% if (topics.length > 1) { %>
+                <form action="/admin/topics/<%= t.id %>/delete" method="POST" style="display:inline;">
+                  <button type="submit" class="btn btn-danger btn-sm"
+                    onclick="return confirm('Delete topic \'<%= t.name %>\'? Posts will be re-assigned to the first remaining topic.')">
+                    Delete
+                  </button>
+                </form>
+                <% } %>
+              </div>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } else { %>
+    <div style="padding: 48px; text-align: center; color: var(--text-muted);">
+      No topics yet. <button onclick="document.getElementById('new-topic-modal').classList.add('open')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:inherit;">Create your first topic</button>.
+    </div>
+    <% } %>
+  </div>
+</div>
+
+<style>
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  overflow: hidden;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-title { font-size: 16px; font-weight: 700; color: var(--text); margin: 0; }
+.modal-close { background: none; border: none; font-size: 16px; color: var(--text-muted); cursor: pointer; text-decoration: none; }
+.modal-body { padding: 20px 24px; }
+.modal-footer { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+</style>

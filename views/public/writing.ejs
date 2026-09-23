@@ -1,0 +1,197 @@
+<link rel="stylesheet" href="/static/css/homepage_extra.css">
+
+<div class="container" style="padding-top: 110px; padding-bottom: 90px;">
+
+  <!-- 1. Category Subnav -->
+  <nav class="dan-subnav reveal">
+    <a href="/writing" class="dan-subnav-link <%= !active_topic && !active_tag ? 'active' : '' %>">Home</a>
+    <% if (all_topics && all_topics.length > 0) { %>
+      <% all_topics.forEach(t => { %>
+        <a href="/writing/topic/<%= t.slug %>" class="dan-subnav-link <%= active_topic && active_topic.slug === t.slug ? 'active' : '' %>"><%= t.name %></a>
+      <% }) %>
+    <% } %>
+  </nav>
+
+  <!-- 2. Hero Feature Banner -->
+  <% if (featured_post && posts.page === 1 && !active_topic && !active_tag) { %>
+  <section class="dan-hero-banner reveal">
+    <div class="dan-hero-content">
+      <h1 class="dan-hero-title"><%= featured_post.title %></h1>
+      <p class="dan-hero-sub"><%= featured_post.subtitle || 'The complete essay breakdown, available to read for free.' %></p>
+      <a href="/writing/<%= featured_post.slug %>" class="dan-hero-btn">
+        <span class="dan-hero-btn-arrow">→</span>
+        <span>READ THE LATEST</span>
+      </a>
+    </div>
+
+    <div class="dan-hero-media">
+      <% if (featured_post.cover_image) { %>
+        <img src="<%= featured_post.cover_image %>" alt="<%= featured_post.title %>">
+      <% } else { %>
+        <div class="post-card-image-placeholder" style="width: 220px; height: 280px; border-radius: 8px; font-size: 42px;">✦</div>
+      <% } %>
+    </div>
+  </section>
+  <% } %>
+
+  <!-- 3. Main 2-Column Split -->
+  <div class="dan-feed-layout reveal">
+    <%
+      let baseUrl = '/writing';
+      if (active_topic) {
+        baseUrl = `/writing/topic/${active_topic.slug}`;
+      } else if (active_tag) {
+        baseUrl = `/tag/${active_tag.slug}`;
+      }
+    %>
+
+    <!-- Left Column: Article List Feed -->
+    <div class="dan-feed-main">
+      <div class="dan-feed-tabs">
+        <div class="dan-feed-pills">
+          <a href="<%= baseUrl %>?feed=latest<%= search_query ? `&q=${encodeURIComponent(search_query)}` : '' %>"
+             class="dan-feed-pill <%= active_feed === 'latest' || !active_feed ? 'active' : '' %>">Latest</a>
+          <a href="<%= baseUrl %>?feed=top<%= search_query ? `&q=${encodeURIComponent(search_query)}` : '' %>"
+             class="dan-feed-pill <%= active_feed === 'top' ? 'active' : '' %>">Top Views</a>
+          <a href="<%= baseUrl %>?feed=discussions<%= search_query ? `&q=${encodeURIComponent(search_query)}` : '' %>"
+             class="dan-feed-pill <%= active_feed === 'discussions' ? 'active' : '' %>">Top Comments</a>
+        </div>
+
+        <form action="<%= baseUrl %>" method="GET" class="dan-search-box js-search-form" style="display: flex; align-items: center; gap: 6px;">
+          <% if (active_feed) { %><input type="hidden" name="feed" value="<%= active_feed %>"><% } %>
+          <input type="text" name="q" value="<%= search_query || '' %>" placeholder="Search essays..." class="dan-search-input js-search-input" style="background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 6px 14px; font-size: 13px; color: var(--text); outline: none; width: <%= search_query ? '180px' : '0px' %>; opacity: <%= search_query ? '1' : '0' %>; transition: all 0.25s ease;">
+          <button type="button" class="js-search-toggle" title="Search articles" style="background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; padding: 4px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+        </form>
+      </div>
+
+      <% if (search_query) { %>
+      <div style="display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 16px; margin-bottom: 24px;">
+        <span style="font-size: 13px; color: var(--text-muted);">
+          Search results for <strong style="color: var(--text);">"<%= search_query %>"</strong> (<%= posts.total %> found)
+        </span>
+        <a href="<%= baseUrl %>?feed=<%= active_feed %>" style="font-size: 12px; color: var(--accent); text-decoration: none !important; border-bottom: none !important;">Clear Search ✕</a>
+      </div>
+      <% } %>
+
+      <% if (active_tag) { %>
+      <div style="display: flex; align-items: center; justify-content: space-between; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 16px; margin-bottom: 24px;">
+        <span style="font-size: 13px; color: var(--text-muted);">
+          Filtered by Tag: <strong style="color: var(--accent);">#<%= active_tag.name %></strong> (<%= posts.total %> found)
+        </span>
+        <a href="/writing" style="font-size: 12px; color: var(--text-muted); text-decoration: none !important; border-bottom: none !important;">All Articles ✕</a>
+      </div>
+      <% } %>
+
+      <% if (posts.items && posts.items.length > 0) { %>
+      <div class="dan-article-feed">
+        <% posts.items.forEach(post => { %>
+        <a href="/writing/<%= post.slug %>" class="dan-article-row">
+          <div class="dan-article-content">
+            <h2 class="dan-article-title"><%= post.title %></h2>
+            <% if (post.subtitle) { %>
+              <p class="dan-article-sub"><%= post.subtitle %></p>
+            <% } %>
+            <div class="dan-article-meta">
+              <%
+                let dateStr = 'RECENT';
+                if (post.published_at) {
+                  const d = new Date(post.published_at);
+                  dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                }
+              %>
+              <%= dateStr %> • <%= (SITE_AUTHOR || '').toUpperCase() %>
+              <% if (post.topic) { %>
+                • <span style="color: var(--accent); font-weight: 600;"><%= post.topic.name %></span>
+              <% } %>
+            </div>
+          </div>
+          <div class="dan-article-thumb">
+            <% if (post.cover_image) { %>
+              <img src="<%= post.cover_image %>" alt="<%= post.title %>" loading="lazy">
+            <% } else { %>
+              <div class="post-card-image-placeholder" style="font-size:24px;"><%= post.title ? post.title[0] : '✦' %></div>
+            <% } %>
+          </div>
+        </a>
+        <% }) %>
+      </div>
+
+      <!-- Pagination -->
+      <% if (posts.pages > 1) { %>
+      <div class="pagination" style="justify-content: flex-start; margin-top: 36px; display: flex; gap: 8px;">
+        <% if (posts.hasPrev) { %>
+          <a href="<%= baseUrl %>?page=<%= posts.prevNum %>&feed=<%= active_feed %><%= search_query ? `&q=${encodeURIComponent(search_query)}` : '' %>">‹</a>
+        <% } %>
+
+        <% for (let p = 1; p <= posts.pages; p++) { %>
+          <% if (p === posts.page) { %>
+            <span class="current"><%= p %></span>
+          <% } else { %>
+            <a href="<%= baseUrl %>?page=<%= p %>&feed=<%= active_feed %><%= search_query ? `&q=${encodeURIComponent(search_query)}` : '' %>"><%= p %></a>
+          <% } %>
+        <% } %>
+
+        <% if (posts.hasNext) { %>
+          <a href="<%= baseUrl %>?page=<%= posts.nextNum %>&feed=<%= active_feed %><%= search_query ? `&q=${encodeURIComponent(search_query)}` : '' %>">›</a>
+        <% } %>
+      </div>
+      <% } %>
+
+      <% } else { %>
+      <div style="padding: 64px 24px; text-align: center; color: var(--text-muted); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);">
+        <p style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px;">No essays found</p>
+        <p style="font-size: 14px; margin-bottom: 24px;">
+          <% if (search_query) { %>
+            No articles matched your search query "<%= search_query %>".
+          <% } else { %>
+            No essays published yet in this category.
+          <% } %>
+        </p>
+        <a href="/writing" class="btn btn-primary btn-sm" style="text-decoration: none !important;">View All Essays</a>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- Right Column: Sidebar -->
+    <aside class="dan-sidebar">
+      <!-- Publication / Author Profile Card -->
+      <div class="dan-author-card">
+        <div class="dan-author-avatar">
+          <%= SITE_NAME ? SITE_NAME[0].toUpperCase() : 'A' %>
+        </div>
+        <div>
+          <h3 class="dan-author-name"><%= SITE_NAME %></h3>
+          <p class="dan-author-bio"><%= SITE_TAGLINE %></p>
+        </div>
+        <a href="/newsletter" class="btn btn-primary btn-sm" style="width: 100%; justify-content: center; margin-top: 4px; text-decoration: none;">
+          Subscribe Free
+        </a>
+      </div>
+
+      <!-- Recommendations Card -->
+      <div class="dan-recs-card">
+        <div class="dan-section-header" style="margin-bottom: 14px;">
+          <h3 class="dan-section-title" style="font-size: 15px;">Recommendations</h3>
+          <a href="/resources" class="dan-section-viewall" style="text-decoration: none;">VIEW ALL →</a>
+        </div>
+
+        <% if (recommendations && recommendations.length > 0) { %>
+          <% recommendations.forEach(rec => { %>
+          <a href="/resources/<%= rec.slug %>" class="dan-rec-item" style="text-decoration: none;">
+            <div class="dan-rec-icon" style="width: 36px; height: 36px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0;">
+              <%= rec.icon %>
+            </div>
+            <div class="dan-rec-info" style="min-width: 0;">
+              <span class="dan-rec-title" style="display: block; font-size: 13.5px; font-weight: 700; color: var(--text); line-height: 1.3;"><%= rec.name %></span>
+              <span class="dan-rec-author" style="display: block; font-size: 12px; color: var(--text-muted); line-height: 1.3; margin-top: 2px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"><%= rec.tagline %></span>
+            </div>
+          </a>
+          <% }) %>
+        <% } %>
+      </div>
+    </aside>
+
+  </div>
+</div>

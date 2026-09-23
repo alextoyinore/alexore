@@ -1,0 +1,218 @@
+<div style="max-width: 900px; margin: 0 auto; padding-bottom: 64px;">
+  <!-- Header Bar -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
+    <div>
+      <a href="/admin/products" style="color: var(--text-muted); font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 6px;">
+        &larr; Back to Products
+      </a>
+      <h2 style="font-size: 1.6rem; font-weight: 700; margin: 0;">
+        <%= product ? `Edit: ${product.title}` : 'Add Digital Product' %>
+      </h2>
+    </div>
+
+    <% if (product) { %>
+      <div style="display: flex; gap: 10px;">
+        <a href="/store/<%= product.slug %>" target="_blank" class="btn btn-outline btn-sm" style="text-decoration: none;">
+          View on Store &nearr;
+        </a>
+        <a href="/admin/products/delete/<%= product.id %>" class="btn btn-sm" style="color: var(--danger); text-decoration: none; border: 1px solid rgba(239, 68, 68, 0.3);"
+           onclick="return confirm('Delete this product permanently?');">
+          Delete
+        </a>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Form -->
+  <form method="POST" enctype="multipart/form-data" action="<%= product ? `/admin/products/edit/${product.id}` : '/admin/products/new' %>" style="display: flex; flex-direction: column; gap: 24px;">
+    
+    <!-- Primary Info Card -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px;">
+      <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 20px;">Basic Details</h3>
+
+      <div style="display: flex; flex-direction: column; gap: 18px;">
+        <!-- Title -->
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Product Title *</label>
+          <input type="text" name="title" value="<%= product ? product.title : '' %>" required
+                 placeholder="e.g. The Polymath Playbook: Synthesis & Mental Models"
+                 style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 15px;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+          <!-- Slug -->
+          <div>
+            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">URL Slug (auto-generated if empty)</label>
+            <input type="text" name="slug" value="<%= product ? product.slug : '' %>"
+                   placeholder="e.g. polymath-playbook"
+                   style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 14px;">
+          </div>
+
+          <!-- Category -->
+          <div>
+            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Category / Format</label>
+            <input type="text" name="category" value="<%= product ? product.category : 'E-Book' %>"
+                   placeholder="e.g. E-Book, Video Course, Templates, Notion Pack, Toolkit"
+                   style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 14px;">
+          </div>
+        </div>
+
+        <!-- Subtitle / Tagline -->
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Subtitle / Short Tagline</label>
+          <input type="text" name="subtitle" value="<%= product ? (product.subtitle || '') : '' %>"
+                 placeholder="A concise, compelling sentence summarizing what this product solves"
+                 style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 14px;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Creator & Attribution Card -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px;">
+      <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 8px;">Creator & Attribution</h3>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">You can publish products authored by yourself or for third-party creators and collaborators.</p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Creator / Author Name *</label>
+          <input type="text" name="creator_name" value="<%= product ? product.creator_name : SITE_AUTHOR %>" required
+                 placeholder="e.g. Alex Ore or Guest Creator"
+                 style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 14px;">
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Creator Short Bio (optional)</label>
+          <input type="text" name="creator_bio" value="<%= product ? (product.creator_bio || '') : '' %>"
+                 placeholder="e.g. Senior Product Strategist & Writer"
+                 style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 14px;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing & Outbound Store Link Card -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px;">
+      <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 8px;">Pricing & External Checkout Destination</h3>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+        Visitors will be seamlessly redirected to this external marketplace (Amazon, Selar, Gumroad, etc.) where they make the final purchase.
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px;">
+        <!-- Price -->
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Display Price *</label>
+          <input type="text" name="price" value="<%= product ? product.price : '$19' %>" required
+                 placeholder="e.g. $29 or ₦15,000 or Free"
+                 style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 14px;">
+        </div>
+
+        <!-- Original Price -->
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Original Price (for discount strikethrough)</label>
+          <input type="text" name="original_price" value="<%= product ? (product.original_price || '') : '' %>"
+                 placeholder="e.g. $49 (optional)"
+                 style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 14px;">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 200px 1fr; gap: 18px;">
+        <!-- Store Name -->
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Store Platform *</label>
+          <select name="external_store_name" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 14px;">
+            <% const currentStore = product ? product.external_store_name : 'Selar'; %>
+            <option value="Selar" <%= currentStore === 'Selar' ? 'selected' : '' %>>Selar</option>
+            <option value="Amazon" <%= currentStore === 'Amazon' ? 'selected' : '' %>>Amazon</option>
+            <option value="Gumroad" <%= currentStore === 'Gumroad' ? 'selected' : '' %>>Gumroad</option>
+            <option value="Lemon Squeezy" <%= currentStore === 'Lemon Squeezy' ? 'selected' : '' %>>Lemon Squeezy</option>
+            <option value="Notion" <%= currentStore === 'Notion' ? 'selected' : '' %>>Notion</option>
+            <option value="Stripe" <%= currentStore === 'Stripe' ? 'selected' : '' %>>Stripe</option>
+            <option value="Substack" <%= currentStore === 'Substack' ? 'selected' : '' %>>Substack</option>
+            <option value="External Store" <%= currentStore === 'External Store' ? 'selected' : '' %>>External Store</option>
+          </select>
+        </div>
+
+        <!-- External Store URL -->
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">External Buy Link (Full URL) *</label>
+          <input type="url" name="external_store_url" value="<%= product ? product.external_store_url : '' %>" required
+                 placeholder="https://selar.co/m/product-name or https://amazon.com/dp/..."
+                 style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 14px;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Media & Presentation Card -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px;">
+      <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 20px;">Cover Mockup & Badge</h3>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px;">
+        <!-- Upload Cover File -->
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Upload Cover Image</label>
+          <input type="file" name="cover_file" accept="image/*"
+                 style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 13px;">
+          <span style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 4px;">PNG, JPG, WebP up to 10MB</span>
+        </div>
+
+        <!-- Cover Image URL -->
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Or Cover Image URL</label>
+          <input type="text" name="cover_image" value="<%= product ? (product.cover_image || '') : '' %>"
+                 placeholder="https://... or /static/uploads/..."
+                 style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 14px;">
+        </div>
+      </div>
+
+      <% if (product && product.cover_image) { %>
+        <div style="margin-bottom: 18px;">
+          <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Current Cover Preview:</label>
+          <img src="<%= product.cover_image %>" alt="" style="max-height: 120px; border-radius: 8px; border: 1px solid var(--border-color); object-fit: cover;">
+        </div>
+      <% } %>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+        <!-- Badge -->
+        <div>
+          <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Badge (optional)</label>
+          <input type="text" name="badge" value="<%= product ? (product.badge || '') : '' %>"
+                 placeholder="e.g. Bestseller, New, Featured, Free"
+                 style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 14px;">
+        </div>
+
+        <!-- Featured & Status -->
+        <div style="display: flex; gap: 20px; align-items: flex-end;">
+          <div style="flex-grow: 1;">
+            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Publish Status</label>
+            <select name="status" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 14px;">
+              <option value="published" <%= product && product.status === 'published' ? 'selected' : '' %>>Published (Visible in Store)</option>
+              <option value="draft" <%= product && product.status === 'draft' ? 'selected' : '' %>>Draft (Hidden)</option>
+            </select>
+          </div>
+
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; cursor: pointer; padding-bottom: 10px;">
+            <input type="checkbox" name="featured" <%= product && product.featured ? 'checked' : '' %>>
+            Feature on Homepage
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Long-form Description HTML -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px;">
+      <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 8px;">Detailed Description & What's Included</h3>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">You can write HTML or structured text detailing what buyers will receive, modules, or key takeaways.</p>
+
+      <textarea name="content_html" rows="12"
+                placeholder="<h2>What's Inside</h2><p>Overview of the digital resource...</p><ul><li>Module 1</li><li>Module 2</li></ul>"
+                style="width: 100%; padding: 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-family: inherit; font-size: 14px; line-height: 1.6;"><%= product ? (product.content_html || '') : '' %></textarea>
+    </div>
+
+    <!-- Submit Action -->
+    <div style="display: flex; justify-content: flex-end; gap: 12px;">
+      <a href="/admin/products" class="btn btn-outline" style="text-decoration: none;">Cancel</a>
+      <button type="submit" class="btn btn-primary" style="padding: 12px 28px; font-size: 15px; font-weight: 600;">
+        <%= product ? 'Save Changes' : 'Create & Publish Product' %>
+      </button>
+    </div>
+  </form>
+</div>

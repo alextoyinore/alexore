@@ -177,3 +177,29 @@
   }
 }
 
+/* ── Sidebar Recommendations ────────────────────────────── */
+.dan-recs-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dan-rec-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  text-decoration: none !important;
+  transition: all 0.15s ease;
+}
+
+.dan-rec-item:hover {
+  background: var(--surface-2);
+  transform: translateX(3px);
+}
+
+.dan-rec-item:hover .dan-rec-title {
+  color: var(--accent) !important;
+}
+

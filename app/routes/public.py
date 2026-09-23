@@ -98,6 +98,7 @@ def writing():
         subscriber_count=subscriber_count,
         featured_post=featured_post,
         popular_posts=popular_posts,
+        recommendations=_RESOURCES,
     )
 
 
@@ -151,6 +152,7 @@ def topic_writing(slug):
         subscriber_count=subscriber_count,
         featured_post=featured_post,
         popular_posts=[],
+        recommendations=_RESOURCES,
     )
 
 
@@ -221,6 +223,7 @@ def tag(slug):
         subscriber_count=subscriber_count,
         featured_post=None,
         popular_posts=[],
+        recommendations=_RESOURCES,
     )
 
 

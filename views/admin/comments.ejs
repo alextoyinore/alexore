@@ -1,0 +1,119 @@
+
+<div class="panel">
+  <div class="panel-header" style="border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <a href="/admin/comments?status=all" class="btn btn-sm <%= status_filter === 'all' ? 'btn-primary' : 'btn-ghost' %>">
+        All (<%= counts.all %>)
+      </a>
+      <a href="/admin/comments?status=pending" class="btn btn-sm <%= status_filter === 'pending' ? 'btn-primary' : 'btn-ghost' %>" style="position: relative;">
+        Pending (<%= counts.pending %>)
+        <% if (counts.pending > 0) { %>
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #eab308; margin-left: 4px;"></span>
+        <% } %>
+      </a>
+      <a href="/admin/comments?status=approved" class="btn btn-sm <%= status_filter === 'approved' ? 'btn-primary' : 'btn-ghost' %>">
+        Approved (<%= counts.approved %>)
+      </a>
+      <a href="/admin/comments?status=spam" class="btn btn-sm <%= status_filter === 'spam' ? 'btn-primary' : 'btn-ghost' %>">
+        Spam (<%= counts.spam %>)
+      </a>
+    </div>
+  </div>
+
+  <div class="panel-body" style="padding: 0;">
+    <% if (comments && comments.length > 0) { %>
+    <div class="table-responsive">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="min-width: 160px;">Author</th>
+            <th style="min-width: 280px;">Comment</th>
+            <th style="min-width: 180px;">Essay</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th style="text-align: right; min-width: 180px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% comments.forEach(c => { %>
+          <tr style="<%= c.status === 'pending_moderation' ? 'background: rgba(234, 179, 8, 0.05);' : '' %>">
+            <td>
+              <div style="font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 6px;">
+                <%= c.author_name %>
+                <% if (c.is_author) { %>
+                  <span class="badge" style="background: var(--accent-dim); color: var(--accent); font-size: 10px; padding: 1px 6px;">Author</span>
+                <% } %>
+              </div>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;"><%= c.author_email %></div>
+            </td>
+            <td>
+              <% if (c.status === 'pending_moderation' && c.flagged_reason) { %>
+                <div style="background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: 6px; padding: 4px 8px; font-size: 11px; color: #eab308; margin-bottom: 6px; font-weight: 600;">
+                  ⚠ <%= c.flagged_reason %>
+                </div>
+              <% } %>
+              <div style="color: var(--text); font-size: 14px; line-height: 1.5; max-height: 120px; overflow-y: auto; white-space: pre-wrap;"><%= c.content %></div>
+            </td>
+            <td>
+              <% if (c.post) { %>
+                <a href="/writing/<%= c.post.slug %>" target="_blank" style="font-weight: 600; color: var(--text); font-size: 13px; display: block; margin-bottom: 2px; text-decoration: none !important;">
+                  <%= c.post.title %> ↗
+                </a>
+              <% } else { %>
+                <span style="color: var(--text-muted); font-size: 12px;">(Deleted Post)</span>
+              <% } %>
+            </td>
+            <td>
+              <% if (c.status === 'approved') { %>
+                <span class="badge badge-published">Approved</span>
+              <% } else if (c.status === 'pending_moderation') { %>
+                <span class="badge" style="background: rgba(234, 179, 8, 0.15); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.3);">Held in Moderation</span>
+              <% } else if (c.status === 'spam') { %>
+                <span class="badge badge-draft">Spam</span>
+              <% } else { %>
+                <span class="badge"><%= c.status %></span>
+              <% } %>
+            </td>
+            <td style="color: var(--text-muted); font-size: 12px; white-space: nowrap;">
+              <%= new Date(c.created_at).toISOString().slice(0,16).replace('T',' ') %>
+            </td>
+            <td style="text-align: right;">
+              <div style="display: inline-flex; gap: 6px; align-items: center;">
+                <% if (c.status !== 'approved') { %>
+                  <a href="/admin/comments/<%= c.id %>/approve" class="btn btn-primary btn-sm" title="Approve and show publicly">
+                    Approve
+                  </a>
+                <% } %>
+                <% if (c.status !== 'spam') { %>
+                  <a href="/admin/comments/<%= c.id %>/spam" class="btn btn-ghost btn-sm" title="Mark as spam">
+                    Spam
+                  </a>
+                <% } %>
+                <a href="/admin/comments/<%= c.id %>/delete" class="btn btn-danger btn-sm" onclick="confirmDelete(event, 'this comment by <%= c.author_name %>');" title="Delete permanently">
+                  Delete
+                </a>
+              </div>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } else { %>
+    <div style="padding: 64px 24px; text-align: center; color: var(--text-muted);">
+      <p style="font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px;">No comments found</p>
+      <p style="font-size: 14px; margin: 0;">
+        <% if (status_filter === 'pending') { %>
+          Great job! There are no pending comments awaiting moderation.
+        <% } else if (status_filter === 'approved') { %>
+          No approved comments yet.
+        <% } else if (status_filter === 'spam') { %>
+          No spam comments detected.
+        <% } else { %>
+          Comments submitted by readers will appear here for moderation.
+        <% } %>
+      </p>
+    </div>
+    <% } %>
+  </div>
+</div>
